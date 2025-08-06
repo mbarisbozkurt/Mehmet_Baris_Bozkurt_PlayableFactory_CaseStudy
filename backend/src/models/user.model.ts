@@ -10,6 +10,7 @@ export interface IUser extends Document {
   lastName: string;
   phoneNumber: string;
   isEmailVerified: boolean;
+  verificationToken: string | undefined;
   addresses: Array<{
     street: string;
     city: string;
@@ -62,6 +63,10 @@ const userSchema = new Schema<IUser>(
     isEmailVerified: {
       type: Boolean,
       default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: false,
     },
     addresses: [{
       street: {

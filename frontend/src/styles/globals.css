@@ -12,6 +12,7 @@ body {
   background: rgb(var(--background-rgb));
 }
 
+/* Custom utility classes */
 @layer components {
   .container-padding {
     @apply px-4 sm:px-6 lg:px-8;

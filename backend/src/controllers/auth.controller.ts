@@ -4,7 +4,8 @@ import mongoose from 'mongoose';
 import User, { IUser } from '../models/user.model';
 import { generateToken } from '../utils/jwt.utils';
 import { AppError } from '../middleware/error.middleware';
-import { sendPasswordResetEmail, sendWelcomeEmail } from '../utils/email.utils';
+import { sendPasswordResetEmail, sendWelcomeEmail, sendVerificationEmail } from '../utils/email.utils';
+import crypto from 'crypto';
 
 type UserWithId = IUser & { _id: mongoose.Types.ObjectId };
 
@@ -27,6 +28,9 @@ export const register = async (
       throw new AppError(400, 'Email already registered');
     }
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+
     // Create new user
     const user = await User.create({
       email,
@@ -34,7 +38,9 @@ export const register = async (
       firstName,
       lastName,
       phoneNumber,
-      role: 'customer'
+      role: 'customer',
+      isEmailVerified: false,
+      verificationToken,
     }) as UserWithId;
 
     // Generate token
@@ -45,6 +51,8 @@ export const register = async (
 
     // Send welcome email
     await sendWelcomeEmail(user.email, user.firstName);
+    // Send verification email
+    await sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
       status: 'success',
@@ -82,6 +90,11 @@ export const login = async (
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       throw new AppError(401, 'Invalid credentials');
+    }
+
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+      throw new AppError(401, 'Please verify your email before logging in');
     }
 
     // Generate token
@@ -179,6 +192,32 @@ export const resetPassword = async (
       status: 'success',
       message: 'Password has been reset successfully'
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Email verification controller
+export const verifyEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      throw new AppError(400, 'Verification token is required');
+    }
+    // Find user with the given verification token
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) {
+      throw new AppError(400, 'Invalid or expired verification token');
+    }
+    // Mark user as verified and clear the token
+    user.isEmailVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+    res.json({ status: 'success', message: 'Email verified successfully' });
   } catch (error) {
     next(error);
   }

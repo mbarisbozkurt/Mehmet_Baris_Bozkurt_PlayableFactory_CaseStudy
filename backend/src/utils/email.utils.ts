@@ -47,3 +47,21 @@ export const sendWelcomeEmail = async (
     `,
   });
 };
+
+export const sendVerificationEmail = async (
+  email: string,
+  verificationToken: string
+) => {
+  const verifyUrl = `${config.app.frontendUrl}/verify-email?token=${verificationToken}`;
+  await transporter.sendMail({
+    from: config.email.from,
+    to: email,
+    subject: 'Verify Your Email',
+    html: `
+      <h1>Email Verification</h1>
+      <p>Thank you for registering. Please verify your email by clicking the link below:</p>
+      <a href="${verifyUrl}">Verify Email</a>
+      <p>If you did not create an account, please ignore this email.</p>
+    `,
+  });
+};
