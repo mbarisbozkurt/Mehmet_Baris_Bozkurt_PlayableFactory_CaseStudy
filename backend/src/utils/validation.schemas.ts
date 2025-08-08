@@ -34,5 +34,6 @@ export const orderSchema = z.object({
     city: z.string().min(1, 'City is required'),
     state: z.string().min(1, 'State is required'),
     zipCode: z.string().min(1, 'Zip code is required'),
+    phone: z.string().min(1, 'Phone is required'),
   }),
 });

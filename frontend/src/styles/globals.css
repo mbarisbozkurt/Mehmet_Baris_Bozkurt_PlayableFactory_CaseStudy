@@ -21,4 +21,18 @@ body {
   .section-spacing {
     @apply py-8 sm:py-12 lg:py-16;
   }
+
+  /* Unified modern button styles */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer appearance-none select-none active:translate-y-px;
+  }
+  .btn-primary {
+    @apply btn border border-transparent bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm;
+  }
+  .btn-secondary {
+    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 shadow-sm;
+  }
+  .btn-ghost {
+    @apply btn border border-transparent text-indigo-600 hover:bg-indigo-50;
+  }
 }

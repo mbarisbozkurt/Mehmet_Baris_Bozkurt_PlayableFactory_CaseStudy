@@ -4,7 +4,8 @@ import {
   getProducts,
   getProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getRelatedProducts
 } from '../controllers/product.controller';
 import { authenticate, authorizeAdmin } from '../middleware/auth.middleware';
 import { validateRequest } from '../middleware/validation.middleware';
@@ -15,6 +16,7 @@ const router = Router();
 // Public routes
 router.get('/', getProducts);
 router.get('/:id', getProduct);
+router.get('/:id/related', getRelatedProducts);
 
 // Protected routes (admin only)
 router.use(authenticate, authorizeAdmin);
