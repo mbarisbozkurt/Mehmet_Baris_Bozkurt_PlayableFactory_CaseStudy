@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { increment, decrement, removeItem, clearCart } from '@/store/features/cartSlice';
+import { increment, decrement, removeItem, clearCart, setAddress, setPaymentMethod } from '@/store/features/cartSlice';
 import { useCreateOrderMutation } from '@/store/api/orderApi';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,8 @@ export default function CartPage() {
   const items = useAppSelector((s) => s.cart.items);
   const dispatch = useAppDispatch();
   const [createOrder, { isLoading }] = useCreateOrderMutation();
-  const [address, setAddress] = useState({ street: '', city: '', state: '', zipCode: '', phone: '' });
+  const [address, setAddressState] = useState({ street: '', city: '', state: '', zipCode: '', phone: '' });
+  const [payment, setPayment] = useState<'credit_card' | 'bank_transfer'>('credit_card');
   const router = useRouter();
   const token = useAppSelector((s) => s.auth.token);
   const [msg, contextHolder] = message.useMessage();
@@ -34,12 +35,16 @@ export default function CartPage() {
       msg.error('Please fill in your shipping address.');
       return;
     }
+    dispatch(setAddress(address));
+    dispatch(setPaymentMethod(payment));
     await createOrder({
       items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       shippingAddress: address,
+      paymentInfo: { method: 'credit_card', status: 'pending' },
     });
     dispatch(clearCart());
     msg.success('Order placed!');
+    router.push('/checkout/success');
   };
 
   return (
@@ -74,11 +79,11 @@ export default function CartPage() {
             <div className="rounded-xl border bg-white p-4 shadow-sm">
               <h2 className="mb-3 text-lg font-semibold">Shipping address</h2>
               <div className="grid grid-cols-2 gap-2">
-                <input className="col-span-2 rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Street" value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} />
-                <input className="rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="City" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
-                <input className="rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="State" value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} />
-                <input className="rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Zip" value={address.zipCode} onChange={(e) => setAddress({ ...address, zipCode: e.target.value })} />
-                <input className="col-span-2 rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Phone" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
+                <input className="col-span-2 rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Street" value={address.street} onChange={(e) => setAddressState({ ...address, street: e.target.value })} />
+                <input className="rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="City" value={address.city} onChange={(e) => setAddressState({ ...address, city: e.target.value })} />
+                <input className="rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="State" value={address.state} onChange={(e) => setAddressState({ ...address, state: e.target.value })} />
+                <input className="rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Zip" value={address.zipCode} onChange={(e) => setAddressState({ ...address, zipCode: e.target.value })} />
+                <input className="col-span-2 rounded-lg border px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Phone" value={address.phone} onChange={(e) => setAddressState({ ...address, phone: e.target.value })} />
               </div>
             </div>
             <div className="rounded-xl border bg-white p-4 shadow-sm">
@@ -89,7 +94,14 @@ export default function CartPage() {
                 <div className="flex justify-between"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
                 <div className="flex justify-between text-base font-semibold"><span>Total</span><span>${total.toFixed(2)}</span></div>
               </div>
-              <button disabled={isLoading} onClick={onCheckout} className="btn-primary mt-3 w-full">{isLoading ? 'Placing...' : 'Place order'}</button>
+              <div className="mt-3">
+                <label className="mb-2 block text-sm font-medium">Payment method</label>
+                <div className="mb-3 flex gap-3 text-sm">
+                  <label className="flex items-center gap-2"><input type="radio" checked={payment==='credit_card'} onChange={()=>setPayment('credit_card')} />Credit Card</label>
+                  <label className="flex items-center gap-2"><input type="radio" checked={payment==='bank_transfer'} onChange={()=>setPayment('bank_transfer')} />Bank Transfer</label>
+                </div>
+                <button disabled={isLoading} onClick={onCheckout} className="btn-primary w-full">{isLoading ? 'Placing...' : 'Place order'}</button>
+              </div>
             </div>
           </aside>
         </div>

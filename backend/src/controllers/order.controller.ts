@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Order from '../models/order.model';
 import { AppError } from '../middleware/error.middleware';
+import Product from '../models/product.model';
 
 export const createOrder = async (
   req: Request,
@@ -8,12 +9,35 @@ export const createOrder = async (
   next: NextFunction
 ) => {
   try {
-    const orderData = {
-      ...req.body,
-      user: req.user?.userId
-    };
+    const { items, shippingAddress, paymentInfo } = req.body as any;
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new AppError(400, 'Order must contain at least one item');
+    }
 
-    const order = await Order.create(orderData);
+    // Map incoming items (productId, quantity) -> order items (product, name, price, quantity)
+    const productIds = items.map((it: any) => String(it.productId));
+    const products = await Product.find({ _id: { $in: productIds } }).select('_id name basePrice variants');
+    const productMap = new Map<string, any>(products.map((p: any) => [String(p._id), p]));
+
+    const orderItems = items.map((it: any) => {
+      const prod: any = productMap.get(String(it.productId));
+      if (!prod) throw new AppError(400, 'Invalid product in order');
+      const unitPrice = typeof prod.basePrice === 'number' ? prod.basePrice : (prod.variants?.[0]?.price ?? 0);
+      return {
+        product: prod._id as any,
+        name: prod.name,
+        price: unitPrice,
+        quantity: it.quantity,
+      };
+    });
+
+    const order = await Order.create({
+      user: req.user?.userId,
+      items: orderItems,
+      totalAmount: orderItems.reduce((sum: number, it: any) => sum + it.price * it.quantity, 0),
+      shippingAddress,
+      paymentInfo: paymentInfo ?? { method: 'credit_card', status: 'pending' },
+    });
     await order.populate('items.product', 'name');
     
     res.status(201).json({

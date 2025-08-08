@@ -155,7 +155,7 @@ const productPresets: Record<string, Array<{ name: string; brand: string; image:
   ],
   Food: [
     { name: 'Gourmet Burger', brand: 'KitchenLab', image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=80', description: 'Juicy beef patty with cheddar and pickles.' },
-    { name: 'Neapolitan Pizza', brand: 'StoneFire', image: 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=1200&q=80', description: 'Wood‑fired crust with fresh mozzarella.' },
+    { name: 'Neapolitan Pizza', brand: 'StoneFire', image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=1200&q=80', description: 'Wood‑fired crust with fresh mozzarella.' },
     { name: 'Garden Salad Bowl', brand: 'FreshCo', image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1200&q=80', description: 'Crisp greens with vinaigrette dressing.' },
     { name: 'Roasted Coffee Beans 1kg', brand: 'BrewHouse', image: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=80', description: 'Medium roast, chocolate and nut notes.' },
   ],

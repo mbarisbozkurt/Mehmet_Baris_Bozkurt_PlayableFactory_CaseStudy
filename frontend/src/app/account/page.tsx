@@ -10,7 +10,15 @@ export default function AccountPage() {
   const user = useAppSelector((s) => s.auth.user);
 
   useEffect(() => {
-    if (!token) router.push('/login');
+    if (!token) {
+      // try to rehydrate from localStorage before redirecting
+      try {
+        const t = localStorage.getItem('token');
+        const u = localStorage.getItem('user');
+        if (t && u) return; // Providers will set it in header
+      } catch {}
+      router.push('/login');
+    }
   }, [token, router]);
 
   const { data } = useGetOrdersQuery(undefined, { skip: !token });
@@ -45,6 +53,18 @@ export default function AccountPage() {
                 <div className="text-sm text-gray-700">
                   <p>{new Date(o.createdAt).toLocaleString()}</p>
                   <p className="font-medium">Total: ${o.totalAmount?.toFixed?.(2) || '—'}</p>
+                  {Array.isArray(o.items) && o.items.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-gray-600">Items:</p>
+                      <ul className="mt-1 list-disc space-y-0.5 pl-5 text-gray-800">
+                        {o.items.map((it: any, idx: number) => (
+                          <li key={idx}>
+                            {(it.name || it.product?.name) ?? 'Product'} x{it.quantity}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

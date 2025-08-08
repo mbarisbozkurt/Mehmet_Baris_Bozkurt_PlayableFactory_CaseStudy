@@ -12,6 +12,7 @@ export interface CreateOrderInput {
   shippingAddress: {
     street: string; city: string; state: string; zipCode: string;
   };
+  paymentInfo?: { method?: 'credit_card' | 'bank_transfer'; status?: 'pending' | 'completed' | 'failed'; transactionId?: string };
 }
 
 export const orderApi = createApi({
@@ -24,12 +25,15 @@ export const orderApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['Orders'],
   endpoints: (builder) => ({
     createOrder: builder.mutation<{ status: string; data?: any }, CreateOrderInput>({
       query: (body) => ({ url: '/orders', method: 'POST', body }),
+      invalidatesTags: ['Orders'],
     }),
     getOrders: builder.query<{ status: string; data: { orders: any[] } }, void>({
       query: () => ({ url: '/orders' }),
+      providesTags: ['Orders'],
     }),
   }),
 });

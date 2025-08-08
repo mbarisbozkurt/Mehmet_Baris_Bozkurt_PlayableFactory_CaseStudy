@@ -3,10 +3,10 @@ import mongoose, { Document, Schema } from 'mongoose';
 // Order item interface
 interface IOrderItem {
   product: mongoose.Types.ObjectId;
-  variant: {
+  variant?: {
     size?: string;
     color?: string;
-    sku: string;
+    sku?: string;
   };
   quantity: number;
   price: number;
@@ -53,10 +53,7 @@ const orderSchema = new Schema<IOrder>(
       variant: {
         size: String,
         color: String,
-        sku: {
-          type: String,
-          required: true,
-        },
+        sku: String,
       },
       quantity: {
         type: Number,

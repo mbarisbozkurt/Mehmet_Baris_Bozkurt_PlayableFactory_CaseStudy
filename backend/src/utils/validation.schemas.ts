@@ -36,4 +36,9 @@ export const orderSchema = z.object({
     zipCode: z.string().min(1, 'Zip code is required'),
     phone: z.string().min(1, 'Phone is required'),
   }),
+  paymentInfo: z.object({
+    method: z.enum(['credit_card', 'bank_transfer']).optional(),
+    status: z.enum(['pending', 'completed', 'failed']).optional(),
+    transactionId: z.string().optional(),
+  }).optional(),
 });

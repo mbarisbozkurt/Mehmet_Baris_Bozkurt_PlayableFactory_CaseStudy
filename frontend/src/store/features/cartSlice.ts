@@ -10,6 +10,8 @@ export interface CartItem {
 
 export interface CartState {
   items: CartItem[];
+  shippingAddress?: { street: string; city: string; state: string; zipCode: string; phone: string };
+  paymentMethod?: 'credit_card' | 'bank_transfer';
 }
 
 const loadInitialState = (): CartState => {
@@ -59,9 +61,17 @@ const cartSlice = createSlice({
       state.items = [];
       persist(state);
     },
+    setAddress: (state, action: PayloadAction<CartState['shippingAddress']>) => {
+      state.shippingAddress = action.payload;
+      persist(state);
+    },
+    setPaymentMethod: (state, action: PayloadAction<CartState['paymentMethod']>) => {
+      state.paymentMethod = action.payload;
+      persist(state);
+    },
   },
 });
 
-export const { addItem, removeItem, increment, decrement, clearCart } = cartSlice.actions;
+export const { addItem, removeItem, increment, decrement, clearCart, setAddress, setPaymentMethod } = cartSlice.actions;
 export default cartSlice.reducer;
 
