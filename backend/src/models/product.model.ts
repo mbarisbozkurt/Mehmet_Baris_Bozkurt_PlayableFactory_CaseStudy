@@ -86,8 +86,7 @@ const productSchema = new Schema<IProduct>(
       },
       sku: {
         type: String,
-        required: true,
-        unique: true,
+        required: false,
       },
     }],
     averageRating: {
@@ -114,6 +113,8 @@ const productSchema = new Schema<IProduct>(
 
 // Indexes for better search performance
 productSchema.index({ name: 'text', description: 'text', tags: 'text' });
+// Allow many docs without variants.sku; avoid unique collisions on null
+productSchema.index({ 'variants.sku': 1 }, { sparse: true });
 
 // Virtual for checking if product is in stock
 productSchema.virtual('inStock').get(function() {

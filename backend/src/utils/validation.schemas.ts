@@ -42,3 +42,40 @@ export const orderSchema = z.object({
     transactionId: z.string().optional(),
   }).optional(),
 });
+
+// Admin Product Schemas
+export const adminCreateProductSchema = z.object({
+  name: z.string().min(2),
+  description: z.string().min(10),
+  basePrice: z.number().positive(),
+  category: z.string().min(1),
+  brand: z.string().min(1),
+  images: z.array(z.string().min(1)).min(1),
+  isActive: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  variants: z.array(z.object({
+    sku: z.string().min(1),
+    price: z.number().positive(),
+    stock: z.number().int().nonnegative(),
+    size: z.string().optional(),
+    color: z.string().optional(),
+  })).optional(),
+});
+
+export const adminUpdateProductSchema = z.object({
+  name: z.string().min(2).optional(),
+  description: z.string().min(10).optional(),
+  basePrice: z.number().positive().optional(),
+  category: z.string().min(1).optional(),
+  brand: z.string().min(1).optional(),
+  images: z.array(z.string().min(1)).min(1).optional(),
+  isActive: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  variants: z.array(z.object({
+    sku: z.string().min(1),
+    price: z.number().positive(),
+    stock: z.number().int().nonnegative(),
+    size: z.string().optional(),
+    color: z.string().optional(),
+  })).optional(),
+});

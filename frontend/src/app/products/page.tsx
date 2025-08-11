@@ -4,6 +4,7 @@ import { useGetProductsQuery } from '@/store/api/productApi';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import { ProductCard } from '@/components/ProductCard';
 import { useMemo, useState } from 'react';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
@@ -162,11 +163,7 @@ export default function ProductsPage() {
         </div>
       </section>
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-60 animate-pulse rounded-lg bg-gray-100" />
-          ))}
-        </div>
+        <div className="flex items-center justify-center py-10"><Spinner size={32} /></div>
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">

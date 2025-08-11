@@ -23,10 +23,18 @@ export const Header = () => {
     }
   }, []);
 
-  const userMenuItems: MenuProps['items'] = [
-    { key: 'profile', label: <Link href="/account" className="no-underline">Profile</Link> },
-    { key: 'logout', label: 'Logout' },
-  ];
+  const userMenuItems: MenuProps['items'] = user?.role === 'admin'
+    ? [
+        { key: 'admin-products', label: <Link href="/admin/products" className="no-underline">Products</Link> },
+        { key: 'admin-users', label: <Link href="/admin/users" className="no-underline">Users</Link> },
+        { key: 'admin-orders', label: <Link href="/admin/orders" className="no-underline">Orders</Link> },
+        { type: 'divider' },
+        { key: 'logout', label: 'Logout' },
+      ]
+    : [
+        { key: 'profile', label: <Link href="/account" className="no-underline">Profile</Link> },
+        { key: 'logout', label: 'Logout' },
+      ];
 
   const initials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() : '';
 
@@ -40,6 +48,9 @@ export const Header = () => {
         <nav className="flex items-center gap-5 text-[15px]">
           <Link href="/" className="text-gray-700 hover:text-black no-underline">Home</Link>
           <Link href="/products" className="text-gray-700 hover:text-black no-underline">Products</Link>
+          {user?.role === 'admin' && (
+            <Link href="/admin/dashboard" className="text-gray-700 hover:text-black no-underline">Dashboard</Link>
+          )}
           <Link href="/cart" className="flex items-center gap-2 text-gray-700 hover:text-black no-underline">
             <span className="relative">
               <ShoppingCartOutlined />
@@ -60,6 +71,9 @@ export const Header = () => {
                 onClick: ({ key }) => {
                   if (key === 'logout') dispatch(logout());
                   if (key === 'profile') router.push('/account');
+                  if (key === 'admin-products') router.push('/admin/products');
+                  if (key === 'admin-users') router.push('/admin/users');
+                  if (key === 'admin-orders') router.push('/admin/orders');
                 },
               }}
               placement="bottomRight"

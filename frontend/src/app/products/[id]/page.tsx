@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
 import { useGetReviewsQuery, useAddReviewMutation } from '@/store/api/reviewApi';
 import { message } from 'antd';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
@@ -24,7 +25,7 @@ export default function ProductDetailPage() {
   const product = data?.data.product;
 
   if (isLoading || !product) {
-    return <div className="mx-auto max-w-7xl px-4 py-6">Loading...</div>;
+    return <div className="mx-auto max-w-7xl px-4 py-10 flex items-center justify-center"><Spinner size={32} /></div>;
   }
 
   const price = product.basePrice ?? product.variants?.[0]?.price ?? 0;
@@ -63,7 +64,10 @@ export default function ProductDetailPage() {
           {reviewsData?.data.reviews?.length ? (
             reviewsData.data.reviews.map((r: any, i: number) => (
               <div key={i} className="rounded-lg border p-3">
-                <div className="text-sm text-yellow-700">★ {r.rating}</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-yellow-700">★ {r.rating}</div>
+                  <div className="text-xs text-gray-600">{r.user?.firstName} {r.user?.lastName}</div>
+                </div>
                 <p className="text-sm text-gray-800">{r.comment}</p>
                 <p className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleString()}</p>
               </div>

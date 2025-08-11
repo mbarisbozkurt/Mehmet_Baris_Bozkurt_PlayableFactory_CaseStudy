@@ -12,7 +12,7 @@ export default function CartPage() {
   const dispatch = useAppDispatch();
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const [address, setAddressState] = useState({ street: '', city: '', state: '', zipCode: '', phone: '' });
-  const [payment, setPayment] = useState<'credit_card' | 'bank_transfer'>('credit_card');
+  // Single method: credit card (pay on next step)
   const router = useRouter();
   const token = useAppSelector((s) => s.auth.token);
   const [msg, contextHolder] = message.useMessage();
@@ -36,15 +36,26 @@ export default function CartPage() {
       return;
     }
     dispatch(setAddress(address));
-    dispatch(setPaymentMethod(payment));
-    await createOrder({
+    dispatch(setPaymentMethod('credit_card'));
+    try {
+      const res = await createOrder({
       items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       shippingAddress: address,
-      paymentInfo: { method: 'credit_card', status: 'pending' },
-    });
-    dispatch(clearCart());
-    msg.success('Order placed!');
-    router.push('/checkout/success');
+    }).unwrap();
+      dispatch(clearCart());
+      const orderId = res?.data?.order?._id || (res as any)?.order?._id;
+      if (orderId) {
+        msg.success('Order created');
+        router.push(`/order/${orderId}`);
+      } else {
+        msg.error('Order created but id missing');
+        router.push('/account');
+      }
+    } catch (e: any) {
+      const m = e?.data?.message || 'Failed to create order';
+      msg.error(m);
+      if (e?.status === 401) router.push('/login');
+    }
   };
 
   return (
@@ -95,12 +106,9 @@ export default function CartPage() {
                 <div className="flex justify-between text-base font-semibold"><span>Total</span><span>${total.toFixed(2)}</span></div>
               </div>
               <div className="mt-3">
-                <label className="mb-2 block text-sm font-medium">Payment method</label>
-                <div className="mb-3 flex gap-3 text-sm">
-                  <label className="flex items-center gap-2"><input type="radio" checked={payment==='credit_card'} onChange={()=>setPayment('credit_card')} />Credit Card</label>
-                  <label className="flex items-center gap-2"><input type="radio" checked={payment==='bank_transfer'} onChange={()=>setPayment('bank_transfer')} />Bank Transfer</label>
-                </div>
-                <button disabled={isLoading} onClick={onCheckout} className="btn-primary w-full">{isLoading ? 'Placing...' : 'Place order'}</button>
+                <label className="mb-1 block text-sm font-medium">Payment method</label>
+                <p className="mb-3 text-sm text-gray-600">Credit card (you will enter card details on the next step)</p>
+                <button disabled={isLoading} onClick={onCheckout} className="btn-primary w-full">{isLoading ? 'Creating…' : 'Place order'}</button>
               </div>
             </div>
           </aside>

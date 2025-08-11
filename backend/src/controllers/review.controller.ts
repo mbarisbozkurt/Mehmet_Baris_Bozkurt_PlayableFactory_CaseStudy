@@ -12,7 +12,8 @@ export const getProductReviews = async (
     const { productId } = req.params;
     const reviews = await Review.find({ product: productId, isApproved: true })
       .sort({ createdAt: -1 })
-      .select('rating comment createdAt user');
+      .select('rating comment createdAt user')
+      .populate('user', 'firstName lastName');
 
     res.json({ status: 'success', data: { reviews } });
   } catch (err) {

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useGetPopularProductsQuery, useGetProductsQuery } from '@/store/api/productApi';
+import { Spinner } from '@/components/ui/Spinner';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import { ProductCard } from '@/components/ProductCard';
 import { CategoryCard } from '@/components/CategoryCard';
@@ -32,11 +33,7 @@ export default function Home() {
           <a href="/products" className="cursor-pointer text-sm text-indigo-600 hover:underline">Explore all</a>
         </div>
         {catsLoading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-40 animate-pulse rounded-lg bg-gray-100" />
-            ))}
-          </div>
+          <div className="flex items-center justify-center py-10"><Spinner size={28} /></div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {categories.map((c) => (
@@ -53,11 +50,7 @@ export default function Home() {
           <Link href="/products?sortBy=createdAt&order=desc" className="btn-ghost text-sm no-underline">See all</Link>
         </div>
         {newLoading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-60 animate-pulse rounded-lg bg-gray-100" />
-            ))}
-          </div>
+          <div className="flex items-center justify-center py-10"><Spinner size={32} /></div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {newArrivals.map((p) => (
@@ -74,11 +67,7 @@ export default function Home() {
           <Link href="/products" className="btn-ghost text-sm no-underline">See all</Link>
         </div>
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-60 animate-pulse rounded-lg bg-gray-100" />
-            ))}
-          </div>
+          <div className="flex items-center justify-center py-10"><Spinner size={32} /></div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {products.map((p) => (

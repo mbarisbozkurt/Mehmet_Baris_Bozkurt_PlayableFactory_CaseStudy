@@ -9,7 +9,7 @@ export const createOrder = async (
   next: NextFunction
 ) => {
   try {
-    const { items, shippingAddress, paymentInfo } = req.body as any;
+    const { items, shippingAddress } = req.body as any;
     if (!Array.isArray(items) || items.length === 0) {
       throw new AppError(400, 'Order must contain at least one item');
     }
@@ -31,12 +31,16 @@ export const createOrder = async (
       };
     });
 
+    const payment = { method: 'credit_card', status: 'pending' as const };
+    const status = 'pending';
+
     const order = await Order.create({
       user: req.user?.userId,
       items: orderItems,
       totalAmount: orderItems.reduce((sum: number, it: any) => sum + it.price * it.quantity, 0),
       shippingAddress,
-      paymentInfo: paymentInfo ?? { method: 'credit_card', status: 'pending' },
+      paymentInfo: payment,
+      status,
     });
     await order.populate('items.product', 'name');
     
@@ -103,8 +107,8 @@ export const getOrder = async (
   next: NextFunction
 ) => {
   try {
-    const order = await Order.findById(req.params.id)
-      .populate('user', 'email name')
+    // Fetch order first without user populate to safely check permission
+    let order: any = await Order.findById(req.params.id)
       .populate('items.product', 'name');
 
     if (!order) {
@@ -112,9 +116,13 @@ export const getOrder = async (
     }
 
     // Check if user has permission to view this order
-    if (req.user?.role !== 'admin' && order.user.toString() !== req.user?.userId) {
+    const ownerId = String(order.user?._id ?? order.user);
+    if (req.user?.role !== 'admin' && ownerId !== req.user?.userId) {
       throw new AppError(403, 'You do not have permission to view this order');
     }
+
+    // Populate user basic info for the response
+    order = await order.populate('user', 'email name');
 
     res.json({
       status: 'success',
@@ -186,5 +194,28 @@ export const cancelOrder = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const payOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) throw new AppError(404, 'Order not found');
+    if (order.user.toString() !== req.user?.userId && req.user?.role !== 'admin') {
+      throw new AppError(403, 'Not allowed to pay this order');
+    }
+    if (order.status !== 'pending') {
+      return res.status(400).json({ status: 'error', message: 'Order is not pending' });
+    }
+    order.paymentInfo = { method: 'credit_card', status: 'completed', transactionId: `TX-${Date.now()}` } as any;
+    order.status = 'paid';
+    await order.save();
+    res.json({ status: 'success', data: { order } });
+  } catch (err) {
+    next(err);
   }
 };

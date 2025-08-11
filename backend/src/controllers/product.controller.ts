@@ -37,6 +37,7 @@ export const getProducts = async (
       brand,
       featured,
       active,
+      includeInactive,
       inStock,
       popular,
       sortBy = 'createdAt',
@@ -48,7 +49,12 @@ export const getProducts = async (
 
     if (category) query.category = category;
     if (featured) query.isFeatured = featured === 'true';
-    if (active) query.isActive = active === 'true';
+    if (active) {
+      query.isActive = active === 'true';
+    } else if (includeInactive !== 'true') {
+      // By default, hide inactive products from public listing
+      query.isActive = true;
+    }
     if (brand) query.brand = { $regex: brand as string, $options: 'i' };
     if (rating) query.averageRating = { $gte: Number(rating) };
     if (inStock === 'true') {
@@ -168,6 +174,27 @@ export const deleteProduct = async (
       status: 'success',
       data: null
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const bulkUpdateProductStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let { ids, isActive } = req.body as { ids: string[]; isActive: boolean | string };
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ status: 'error', message: 'ids (array) and isActive (boolean) are required' });
+    }
+    if (typeof isActive === 'string') isActive = isActive === 'true';
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ status: 'error', message: 'isActive must be boolean' });
+    }
+    const result: any = await Product.updateMany({ _id: { $in: ids } }, { $set: { isActive } });
+    res.json({ status: 'success', data: { matched: result.matchedCount ?? result.n, modified: result.modifiedCount ?? result.nModified } });
   } catch (error) {
     next(error);
   }

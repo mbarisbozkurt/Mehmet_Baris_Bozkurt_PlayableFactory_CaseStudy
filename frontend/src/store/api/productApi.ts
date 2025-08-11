@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { RootState } from '@/store/store';
 import { API_BASE } from '@/lib/config';
 
 export interface ProductVariant {
@@ -45,6 +46,7 @@ export interface GetProductsParams {
   brand?: string;
   featured?: boolean | string;
   active?: boolean | string;
+  includeInactive?: boolean | string;
   inStock?: boolean | string;
   popular?: boolean | string;
   sortBy?: string;
@@ -53,7 +55,15 @@ export interface GetProductsParams {
 
 export const productApi = createApi({
   reducerPath: 'productApi',
-  baseQuery: fetchBaseQuery({ baseUrl: `${API_BASE}/api` }),
+  tagTypes: ['Products'],
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${API_BASE}/api`,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token;
+      if (token) headers.set('Authorization', `Bearer ${token}`);
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     getProducts: builder.query<
       { status: string; data: { products: Product[]; pagination: Pagination } },
@@ -63,6 +73,7 @@ export const productApi = createApi({
         url: '/products',
         params,
       }),
+      providesTags: ['Products'],
     }),
     getProductById: builder.query<
       { status: string; data: { product: Product } },
@@ -85,6 +96,28 @@ export const productApi = createApi({
         params: { popular: true, limit },
       }),
     }),
+    createProduct: builder.mutation<{ status: string; data: { product: Product } }, Partial<Product> & { variants?: any[] }>(
+      {
+        query: (body) => ({ url: '/products', method: 'POST', body }),
+        invalidatesTags: ['Products'],
+      }
+    ),
+    updateProduct: builder.mutation<{ status: string; data: { product: Product } }, { id: string; body: Partial<Product> & { variants?: any[] } }>(
+      {
+        query: ({ id, body }) => ({ url: `/products/${id}`, method: 'PATCH', body }),
+        invalidatesTags: ['Products'],
+      }
+    ),
+    deleteProduct: builder.mutation<{ status: string }, string>({
+      query: (id) => ({ url: `/products/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Products'],
+    }),
+    bulkUpdateProductStatus: builder.mutation<{ status: string; data: any }, { ids: string[]; isActive: boolean }>(
+      {
+        query: (body) => ({ url: '/products/bulk/status', method: 'PATCH', body }),
+        invalidatesTags: ['Products'],
+      }
+    ),
   }),
 });
 
@@ -93,6 +126,10 @@ export const {
   useGetProductByIdQuery,
   useGetRelatedProductsQuery,
   useGetPopularProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+  useBulkUpdateProductStatusMutation,
 } = productApi;
 
 

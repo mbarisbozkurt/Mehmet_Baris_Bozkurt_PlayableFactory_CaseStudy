@@ -48,11 +48,14 @@ export default function AccountPage() {
               <div key={o._id} className="rounded-lg border p-4">
                 <div className="mb-2 flex items-center justify-between text-sm">
                   <span className="text-gray-600">#{o._id.slice(-6)}</span>
-                  <span className="rounded bg-indigo-50 px-2 py-0.5 text-indigo-700">{o.status}</span>
+                  <span className={statusBadgeClass(o.status)}>{o.status}</span>
                 </div>
                 <div className="text-sm text-gray-700">
                   <p>{new Date(o.createdAt).toLocaleString()}</p>
                   <p className="font-medium">Total: ${o.totalAmount?.toFixed?.(2) || '—'}</p>
+                  {o.status === 'pending' && (
+                    <a href={`/order/${o._id}`} className="btn-primary mt-2 inline-block no-underline">Complete payment</a>
+                  )}
                   {Array.isArray(o.items) && o.items.length > 0 && (
                     <div className="mt-2">
                       <p className="text-gray-600">Items:</p>
@@ -73,6 +76,20 @@ export default function AccountPage() {
       </section>
     </main>
   );
+}
+
+function statusBadgeClass(status: string) {
+  const base = 'rounded px-2 py-0.5 text-xs font-medium';
+  switch (status) {
+    case 'pending':
+      return `${base} bg-yellow-50 text-yellow-700`;
+    case 'paid':
+      return `${base} bg-green-50 text-green-700`;
+    case 'delivered':
+      return `${base} bg-blue-50 text-blue-700`;
+    default:
+      return `${base} bg-gray-100 text-gray-600`;
+  }
 }
 
 

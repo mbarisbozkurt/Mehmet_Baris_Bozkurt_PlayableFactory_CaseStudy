@@ -5,7 +5,8 @@ import {
   getOrders,
   getOrder,
   updateOrderStatus,
-  cancelOrder
+  cancelOrder,
+  payOrder
 } from '../controllers/order.controller';
 import { validateRequest } from '../middleware/validation.middleware';
 import { orderSchema } from '../utils/validation.schemas';
@@ -21,6 +22,7 @@ router.post('/', validateRequest(orderSchema), createOrder);
 router.get('/', getOrders);
 router.get('/:id', getOrder);
 router.post('/:id/cancel', cancelOrder);
+router.post('/:id/pay', payOrder);
 
 // Admin only routes
 router.patch('/:id/status', authorizeAdmin, updateOrderStatus);
