@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useEffect, useMemo, useState } from 'react';
 import { useGetProductsQuery, useBulkUpdateProductStatusMutation, useDeleteProductMutation } from '@/store/api/productApi';
 import { API_BASE } from '@/lib/config';
