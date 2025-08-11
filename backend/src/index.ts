@@ -20,11 +20,21 @@ const app = express();
 app.use(securityHeaders);
 app.use(rateLimiter);
 
-// CORS configuration
+// CORS configuration (allow frontend URL from env and localhost during dev)
+const allowedOrigins: Array<string | undefined> = [
+  config.app.frontendUrl,
+  'http://localhost:3000'
+];
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://your-frontend-domain.com' 
-    : 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Allow non-browser requests or same-origin
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.filter(Boolean).includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
