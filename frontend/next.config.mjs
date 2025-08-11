@@ -4,6 +4,8 @@ const apiBase = process.env.NEXT_PUBLIC_API_BASE ? new URL(process.env.NEXT_PUBL
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    // Disable server-side image optimization to reduce memory usage on free instances
+    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
