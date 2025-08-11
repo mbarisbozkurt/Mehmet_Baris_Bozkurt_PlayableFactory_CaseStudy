@@ -62,7 +62,7 @@ cd backend && npm run build && npm start
 cd ../frontend && npm run build && npm start
 ```
 
-## Demo Credentials (created by seed)
+## Demo Credentials 
 
 - Admin: `mbarisbozkurt@gmail.com` / `123456`
 - Customer: `mbaris@sabanciuniv.edu` / `123456`
