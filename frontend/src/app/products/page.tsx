@@ -5,10 +5,10 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useGetProductsQuery } from '@/store/api/productApi';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
 import { ProductCard } from '@/components/ProductCard';
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { Spinner } from '@/components/ui/Spinner';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -201,6 +201,14 @@ export default function ProductsPage() {
         </>
       )}
     </main>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-10"><Spinner size={32} /></div>}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
 

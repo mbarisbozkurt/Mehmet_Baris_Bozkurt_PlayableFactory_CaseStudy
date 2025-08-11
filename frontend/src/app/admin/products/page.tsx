@@ -1,14 +1,14 @@
 "use client";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useGetProductsQuery, useBulkUpdateProductStatusMutation, useDeleteProductMutation } from '@/store/api/productApi';
 import { API_BASE } from '@/lib/config';
 import { message } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppSelector } from '@/store/store';
 
-export default function AdminProductsPage() {
+function AdminProductsPageContent() {
   const user = useAppSelector((s) => s.auth.user);
   const router = useRouter();
   useEffect(() => { if (user && user.role !== 'admin') router.push('/'); }, [user, router]);
@@ -100,6 +100,14 @@ export default function AdminProductsPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function AdminProductsPage() {
+  return (
+    <Suspense fallback={<div className="py-10 text-center">Loading…</div>}>
+      <AdminProductsPageContent />
+    </Suspense>
   );
 }
 

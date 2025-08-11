@@ -1,6 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +22,7 @@ const resetPasswordSchema = z.object({
 });
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const router = useRouter();
@@ -118,5 +119,13 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading…</div>}>
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }

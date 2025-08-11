@@ -1,13 +1,14 @@
 'use client';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useVerifyEmailMutation } from '@/store/api/authApi';
 import { useRouter } from 'next/navigation';
 
-export default function VerifyEmailPage() {
+function VerifyEmailPageContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const router = useRouter();
@@ -64,5 +65,13 @@ export default function VerifyEmailPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading…</div>}>
+      <VerifyEmailPageContent />
+    </Suspense>
   );
 }
