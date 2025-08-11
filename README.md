@@ -2,6 +2,23 @@
 
 Modern e‑commerce application that delivers customer shopping flows, a lightweight admin panel, and simple recommendation features. The codebase is a monorepo with Next.js 14 (App Router) frontend and Node.js/Express + TypeScript backend.
 
+## Live demo
+
+- Frontend: https://mehmet-baris-bozkurt-playablefactory-e0p6.onrender.com/
+- API base: `https://mehmet-baris-bozkurt-playablefactory.onrender.com`
+
+### Demo credentials
+
+- Admin: `mbarisbozkurt@gmail.com` / `123456`
+- Customer: `mbaris@sabanciuniv.edu` / `123456`
+
+### Quick test flow
+
+1. Register or login (customer)
+2. Browse Products → open a Product Detail → Add to cart
+3. Go to Cart → fill address → Place order → you will be redirected to Order detail
+4. Login as Admin → Admin Dashboard → Orders → mark an order as delivered
+
 ## Project Structure
 
 - `backend/`: Express + TypeScript API with MongoDB/Mongoose, JWT auth, validation, file upload, admin stats
@@ -62,7 +79,7 @@ cd backend && npm run build && npm start
 cd ../frontend && npm run build && npm start
 ```
 
-## Demo Credentials 
+## Demo Credentials
 
 - Admin: `mbarisbozkurt@gmail.com` / `123456`
 - Customer: `mbaris@sabanciuniv.edu` / `123456`
