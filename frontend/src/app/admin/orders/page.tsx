@@ -18,6 +18,15 @@ export default function AdminOrdersPage() {
   const orders = data?.data?.orders || [];
   const [updateStatus] = useUpdateOrderStatusMutation();
 
+  const computeOrderTotal = (o: any) => {
+    const subtotal = Array.isArray(o.items)
+      ? o.items.reduce((s: number, it: any) => s + (it.price || 0) * (it.quantity || 0), 0)
+      : (o.totalAmount || 0);
+    const shipping = (Array.isArray(o.items) && o.items.length) ? 9.99 : 0;
+    const tax = subtotal * 0.08;
+    return subtotal + shipping + tax;
+  };
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-8">
       {holder}
@@ -50,7 +59,7 @@ export default function AdminOrdersPage() {
               <tr key={o._id} className="border-t">
                 <td className="px-3 py-2">#{o._id.slice(-6)}</td>
                 <td className="px-3 py-2">{o.user?.email ?? '—'}</td>
-                <td className="px-3 py-2">${o.totalAmount?.toFixed?.(2) ?? '—'}</td>
+                <td className="px-3 py-2">${computeOrderTotal(o).toFixed(2)}</td>
                 <td className="px-3 py-2">
                   <span className={statusBadgeClass(o.status)}>{o.status}</span>
                 </td>

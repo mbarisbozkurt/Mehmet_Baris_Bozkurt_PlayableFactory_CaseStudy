@@ -24,6 +24,15 @@ export default function AccountPage() {
   const { data } = useGetOrdersQuery(undefined, { skip: !token });
   const orders: any[] = data?.data?.orders || [];
 
+  const computeOrderTotal = (o: any) => {
+    const subtotal = Array.isArray(o.items)
+      ? o.items.reduce((s: number, it: any) => s + (it.price || 0) * (it.quantity || 0), 0)
+      : (o.totalAmount || 0);
+    const shipping = (Array.isArray(o.items) && o.items.length) ? 9.99 : 0;
+    const tax = subtotal * 0.08;
+    return subtotal + shipping + tax;
+  };
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-semibold">Account</h1>
@@ -52,7 +61,7 @@ export default function AccountPage() {
                 </div>
                 <div className="text-sm text-gray-700">
                   <p>{new Date(o.createdAt).toLocaleString()}</p>
-                  <p className="font-medium">Total: ${o.totalAmount?.toFixed?.(2) || '—'}</p>
+                  <p className="font-medium">Total: ${computeOrderTotal(o).toFixed(2)}</p>
                   {o.status === 'pending' && (
                     <a href={`/order/${o._id}`} className="btn-primary mt-2 inline-block no-underline">Complete payment</a>
                   )}
