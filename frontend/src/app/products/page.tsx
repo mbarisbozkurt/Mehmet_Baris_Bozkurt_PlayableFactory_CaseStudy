@@ -1,5 +1,6 @@
 "use client";
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useGetProductsQuery } from '@/store/api/productApi';
 import { useGetCategoriesQuery } from '@/store/api/categoryApi';
