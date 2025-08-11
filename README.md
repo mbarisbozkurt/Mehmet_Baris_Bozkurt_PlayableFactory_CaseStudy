@@ -64,8 +64,8 @@ cd ../frontend && npm run build && npm start
 
 ## Demo Credentials (created by seed)
 
-- Admin: `admin@example.com` / `admin123`
-- Customer: `user@example.com` / `user123`
+- Admin: `mbarisbozkurt@gmail.com` / `123456`
+- Customer: `mbaris@sabanciuniv.edu` / `123456`
 
 ## API Overview
 
